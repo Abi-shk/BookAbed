@@ -32,7 +32,7 @@ const Register = () => {
     const newErrors = validate();
     if (Object.keys(newErrors).length === 0) {
       try {
-        const response = await axios.post('http://localhost:3000/api/register', { firstName, lastName, email, password });
+        const response = await axios.post('https://bookabed-backend.onrender.com/api/register', { firstName, lastName, email, password });
         if (response.data.success) {
           navigate('/login');
         } else {

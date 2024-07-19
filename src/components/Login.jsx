@@ -31,7 +31,7 @@ const Login = () => {
     if (Object.keys(newErrors).length === 0) {
       setLoading(true);
       try {
-        const response = await axios.post('http://localhost:3000/api/login', { email, password });
+        const response = await axios.post('https://bookabed-backend.onrender.com/api/login', { email, password });
         if (response.data.success) {
           login(response.data);
           setLoading(false);

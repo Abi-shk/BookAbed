@@ -14,7 +14,7 @@ export const useTodos = () => {
     const getAllTodos = async () => {
         try {
             setIsLoading(true)
-            const res = await axios.get(`http://localhost:3000/api/todo/all/${user.userId}`)
+            const res = await axios.get(`https://bookabed-backend.onrender.com/api/todo/all/${user.userId}`)
             if (res.data.status) {
                 setTodos(res.data.todos)
             }
@@ -31,7 +31,7 @@ export const useTodos = () => {
         todo.userId = user.userId
         try {
             setIsLoading(true)
-            const res = await axios.post("http://localhost:3000/api/todo/save", todo)
+            const res = await axios.post("https://bookabed-backend.onrender.com/api/todo/save", todo)
             if (res.data.status) {
                 setTodos(res.data.todos)
                 toast("Task saved")
@@ -48,7 +48,7 @@ export const useTodos = () => {
     const deleteTodo = async (todoId) => {
         try {
             setIsLoading(true)
-            const res = await axios.delete(`http://localhost:3000/api/todo/delete/${todoId}`)
+            const res = await axios.delete(`https://bookabed-backend.onrender.com/api/todo/delete/${todoId}`)
             if (res.data.status) {
                 setTodos(res.data.todos)
                 toast("Task Deleted")
@@ -65,7 +65,7 @@ export const useTodos = () => {
     const completedTodo = async (todoId) => {
         setIsLoading(true)
         try {
-            const res = await axios.patch(`http://localhost:3000/api/todo/completed/${todoId}`)
+            const res = await axios.patch(`https://bookabed-backend.onrender.com/api/todo/completed/${todoId}`)
             if (res.data.status) {
                 setTodos(res.data.todos)
                 if (res.data.completed) {

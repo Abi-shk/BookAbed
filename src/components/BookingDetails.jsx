@@ -14,7 +14,7 @@ const BookingDetails = () => {
   useEffect(() => {
     const fetchBookingDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/booking/all/${user.userId}`);
+        const response = await axios.get(`https://bookabed-backend.onrender.com/api/booking/all/${user.userId}`);
         setBookings(response.data);
         setLoading(false);
       } catch (error) {
