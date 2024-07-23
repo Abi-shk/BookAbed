@@ -80,3 +80,40 @@ export const fetchFlightOffers = async (fromValue, toValue, departureDate, retur
         }
     }
 };
+
+export const fetchHotelOffers = async (cityCode, checkInDate, checkOutDate, adults) => {
+    if (!accessToken) {
+        accessToken = await getAccessToken();
+    }
+
+    if (!accessToken) return;
+
+    const url = 'https://test.api.amadeus.com/v2/shopping/hotel-offers';
+    const params = {
+        cityCode,
+        checkInDate,
+        checkOutDate,
+        roomQuantity: 1,
+        adults,
+        currency: 'INR'
+    };
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            params
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching hotel offers:', error);
+        if (error.response && error.response.status === 401) {
+            // Token might be expired, try getting a new one and retry
+            accessToken = await getAccessToken();
+            return fetchHotelOffers(cityCode, checkInDate, checkOutDate, adults); // retry
+        }
+    }
+};
+

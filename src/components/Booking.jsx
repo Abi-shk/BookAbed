@@ -257,14 +257,6 @@ function Booking() {
                       <button onClick={() => handleIncrement('children')}>+</button>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm md:text-xl">Infants</span>
-                    <div className="flex items-center space-x-2">
-                      <button onClick={() => handleDecrement('infants')}>-</button>
-                      <span>{travelers.infants}</span>
-                      <button onClick={() => handleIncrement('infants')}>+</button>
-                    </div>
-                  </div>
                   <button
                     className="bg-indigo-700 text-white px-4 py-2 mt-4 rounded-lg w-full md:w-auto"
                     onClick={handleApply}
@@ -328,14 +320,6 @@ function Booking() {
                       <button onClick={() => handleDecrement('children')}>-</button>
                       <span>{travelers.children}</span>
                       <button onClick={() => handleIncrement('children')}>+</button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm md:text-xl">Infants</span>
-                    <div className="flex items-center space-x-2">
-                      <button onClick={() => handleDecrement('infants')}>-</button>
-                      <span>{travelers.infants}</span>
-                      <button onClick={() => handleIncrement('infants')}>+</button>
                     </div>
                   </div>
                   <button

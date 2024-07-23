@@ -144,7 +144,7 @@ const FlightOffersModal = ({
     flight.user = user;
 
     const stripe = await loadStripe("pk_test_51PabFUFifkpKiuXktJzxAhq04UhByVR3kEsOMynZyAVOQMTrFUKmbW4XPyLQjfb28RqFcoIaWtHkafAXloVSMtvW00HQi9Edgq");
-    const res = await axios.post(`http://localhost:3000/api/payment/create-checkout-session`, flight, {
+    const res = await axios.post(`https://bookabed-backend.onrender.com/api/payment/create-checkout-session`, flight, {
       headers: {
         Authorization: `Bearer ${user.accessToken}`
       }
