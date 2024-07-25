@@ -88,23 +88,24 @@ export const fetchHotelOffers = async (cityCode, checkInDate, checkOutDate, adul
 
     if (!accessToken) return;
 
-    const url = 'https://test.api.amadeus.com/v2/shopping/hotel-offers';
+    const url = `https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city?cityCode=${cityCode}&radius=25&radiusUnit=KM&amenities=SWIMMING_POOL,SPA,FITNESS_CENTER,AIR_CONDITIONING,CASINO,JACUZZI,MASSAGE,BAR,MINIBAR&hotelSource=ALL`;
     const params = {
         cityCode,
         checkInDate,
         checkOutDate,
         roomQuantity: 1,
         adults,
-        currency: 'INR'
+        currency: 'INR',
     };
+
+    console.log('Fetching hotels with parameters:', params);
 
     try {
         const response = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-            },
-            params
+            }
         });
         return response.data.data;
     } catch (error) {

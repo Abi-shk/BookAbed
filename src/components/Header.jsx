@@ -194,11 +194,11 @@ function Header({ currentView, setCurrentView }) {
         className="md:hidden text-white text-3xl"
         onClick={toggleMobileMenu}
       >
-        {showMobileMenu ? <FaTimes /> : <FaBars />}
+        {showMobileMenu ? <FaTimes /> : <FaBars className='text-indigo-700'/>}
       </button>
 
       {/* Login, Logout, and Get Started Buttons */}
-      <div className="flex w-1/3 justify-start items-center space-x-5 hidden md:flex">
+      <div className=" w-1/3 justify-start items-center space-x-5 hidden md:flex">
         {user ? (
           <>
             <button className="w-40 gap-2 flex justify-center items-center h-10 bg-blue-400 hover:bg-blue-300 text-white rounded-full">
@@ -217,6 +217,7 @@ function Header({ currentView, setCurrentView }) {
                 Bookings
               </button>
             </Link>
+           
           </>
         ) : (
           <>
@@ -259,6 +260,11 @@ function Header({ currentView, setCurrentView }) {
                   Bookings
                 </button>
               </Link>
+              <Link to="/">
+              <button className="w-32 md:flex justify-center items-center h-10 bg-red-800 hover:bg-red-600 text-white rounded-full mt-24">
+                Cancel
+              </button>
+            </Link>
             </>
           ) : (
             <>

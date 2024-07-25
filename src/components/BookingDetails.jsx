@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { FaPlaneDeparture, FaPlaneArrival } from 'react-icons/fa';
 import Foooter from './Foooter';
 import { Link } from 'react-router-dom';
+import { MdManageHistory } from 'react-icons/md';
 
 const BookingDetails = () => {
   const { user } = useAuth();
@@ -26,7 +27,9 @@ const BookingDetails = () => {
   }, [user.userId]);
 
   if (loading) {
-    return <div className="text-center mt-10">Loading...</div>;
+    return    <div className='w-full fixed top-0 left-0 flex justify-center items-center  min-h-screen bg-indigo-700'>
+    <h1 className='animate-pulse duration-200 ease-in-out text-3xl flex items-center gap-3 font-semibold text-white'><MdManageHistory />Loading...</h1>
+  </div>;
   }
 
   if (error) {
@@ -55,7 +58,7 @@ const BookingDetails = () => {
                 className="w-14 md:w-28 h-16 md:h-28 object-contain flex items-center justify-center"
               />
               <div className="flex-1 mt-4 md:mt-0 ml-10 w-full">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full">
                   <div>
                     <p className="text-xl md:text-2xl font-semibold">{booking.from}</p>
                     <div className="flex  gap-4 items-center  mt-2 md:mt-5">

@@ -3,10 +3,12 @@ import { FaArrowRightArrowLeft } from 'react-icons/fa6';
 import Header from './Header';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { fetchFlightOffers } from './Api/amadeusAPI';
+import { fetchFlightOffers, fetchHotelOffers } from './Api/amadeusAPI';
 import FlightOffersModal from './pages/FlightOffersModal';
 import { FaSearch } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
+import ErrorModal from './pages/ErrorModal';
+import HotelOffersModal from './pages/HotelOffersModal';
 
 function Booking() {
   const [travelers, setTravelers] = useState({ adults: 1, children: 0, infants: 0 });
@@ -24,6 +26,9 @@ function Booking() {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [hotelOffers, setHotelOffers] = useState([]);
+
   const { user } = useAuth();
   const token = user?.apiToken || '';
 
@@ -53,10 +58,11 @@ function Booking() {
       if (type === "from") {
         setFromLocations(locationData);
       } else {
-        setToLocations(locationData)
+        setToLocations(locationData);
       }
     } catch (error) {
       console.error('Error fetching locations:', error);
+      setErrorMessage('Error fetching locations. Please try again later.');
     }
   };
 
@@ -91,26 +97,41 @@ function Booking() {
 
   const handleSearch = async () => {
     setLoading(true);
-    if (currentView === 'flights') {
-      const flightResults = await fetchFlightOffers(
-        fromValue,
-        toValue,
-        departureDate,
-        tripType === 'round-trip' ? returnDate : null,
-        travelers.adults,
-        travelers.children,
-        travelers.infants
-      );
-      console.log(flightResults);
-      setFlightOffers(flightResults);
-      setTotalPages(Math.ceil(flightResults.length / 6)); // Assuming 6 results per page
-    } else {
-      // Handle hotel search logic
+    setErrorMessage(''); // Clear previous error messages
+    try {
+      if (currentView === 'flights') {
+        const flightResults = await fetchFlightOffers(
+          fromValue,
+          toValue,
+          departureDate,
+          tripType === 'round-trip' ? returnDate : null,
+          travelers.adults,
+          travelers.children,
+          travelers.infants
+        );
+        console.log(flightResults);
+        setFlightOffers(flightResults);
+        setTotalPages(Math.ceil(flightResults.length / 6)); // Assuming 6 results per page
+      } else if (currentView === 'hotels') {
+        const hotelResults = await fetchHotelOffers(
+          toValue, // Use toValue as the city code for hotels
+          departureDate,
+          returnDate,
+          travelers.adults
+        );
+        setHotelOffers(hotelResults);
+        console.log(hotelResults);
+
+      }
+      setModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching offers:', error);
+      setErrorMessage('Error fetching offers. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    setModalVisible(true);
   };
-  
+
   const handleApply = () => {
     setDropdownOpen(false);
   };
@@ -163,10 +184,10 @@ function Booking() {
                 Round Trip
               </button>
             </div>
-            <div className="flex flex-col md:flex-row gap-4 md:gap-2">
-              <div className='flex relative flex-col'>
+            <div className="flex flex-col md:flex-row gap-4 md:gap-2 w-full">
+              <div className='flex relative flex-col md:w-w-1/2 w-full'>
                 <input
-                  className="flex w-full md:w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
+                  className="flex w-full md:w-full rounded-lg p-5 md:p-5 border-2 text-sm md:text-xl"
                   value={fromValue}
                   placeholder='From'
                   onChange={(e) => setFromValue(e.target.value)}
@@ -175,12 +196,16 @@ function Booking() {
                 {fromLocations.length > 0 && (
                   <>
                     <MdClose onClick={() => setFromLocations([])} className=' absolute opacity-50 top-6 right-12 h-6 w-6' />
-                    <div className=' border h-[200px] overflow-y-scroll'>
-                      {fromLocations?.map((location, index) => (
-                        <p key={index} className='border-b p-2 cursor-pointer' value={location.iataCode} onClick={() => setFromValue(location.iataCode)}>
-                          {location.name}
-                        </p>
-                      ))}
+                    <div className='border h-[200px] overflow-y-scroll'>
+                      {fromLocations.length > 0 ? (
+                        fromLocations.map((location, index) => (
+                          <p key={index} className='border-b p-2 cursor-pointer' value={location.iataCode} onClick={() => setFromValue(location.iataCode)}>
+                            {location.name}
+                          </p>
+                        ))
+                      ) : (
+                        <p className='p-2 text-center'>No Airports Found, Try Another</p>
+                      )}
                     </div>
                   </>
                 )}
@@ -188,9 +213,9 @@ function Booking() {
               <button className="w-10 md:w-14 h-10 md:h-14 rounded-full flex justify-center items-center" onClick={swapValues}>
                 <FaArrowRightArrowLeft className="w-6 mt-3 md:w-10 h-6 md:h-10 text-slate-500 hover:text-slate-700" />
               </button>
-              <div className='flex flex-col relative'>
+              <div className='flex flex-col relative md:w-full'>
                 <input
-                  className="flex w-full md:w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
+                  className="flex w-full md:w-full rounded-lg p-5 md:p-5 border-2 text-sm md:text-xl"
                   value={toValue}
                   placeholder='To'
                   onChange={(e) => setToValue(e.target.value)}
@@ -213,7 +238,10 @@ function Booking() {
             <div className="flex flex-col md:flex-row gap-4 mt-4">
               <div className="flex-1">
                 <input
-                  type="date"
+                  onFocus={(e) => (e.target.type = 'date')}
+                  onBlur={(e) => (e.target.type = 'text')}
+                  type="text"
+                  placeholder='Depart'
                   className="w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
                   value={departureDate}
                   onChange={(e) => setDepartureDate(e.target.value)}
@@ -223,7 +251,10 @@ function Booking() {
               {tripType === 'round-trip' && (
                 <div className="flex-1">
                   <input
-                    type="date"
+                    onFocus={(e) => (e.target.type = 'date')}
+                    onBlur={(e) => (e.target.type = 'text')}
+                    type="text"
+                    placeholder='Return'
                     className="w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
@@ -232,7 +263,7 @@ function Booking() {
                 </div>
               )}
             </div>
-            <div className="relative mt-4">
+            <div className="relative mt-4 flex items-center justify-center">
               <button
                 className="relative w-full md:w-11/12 rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl bg-white"
                 onClick={toggleDropdown}
@@ -240,7 +271,7 @@ function Booking() {
                 {totalPassengers} {totalPassengers === 1 ? 'Traveler' : 'Travelers'}
               </button>
               {dropdownOpen && (
-                <div className="absolute top-full left-0 w-full md:w-11/12 bg-white border-2 mt-2 p-4 rounded-lg z-10">
+                <div className="absolute top-full left-0 md:left-12 w-full md:w-11/12 bg-white border-2 mt-2 p-4 rounded-lg z-10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm md:text-xl">Adults</span>
                     <div className="flex items-center space-x-2">
@@ -266,10 +297,10 @@ function Booking() {
                 </div>
               )}
             </div>
-            <div className="mt-4">
+            <div className="mt-4 flex items-center justify-center">
               <button
                 className="w-full md:w-11/12 bg-indigo-700 hover:bg-indigo-600 text-white text-lg md:text-xl font-bold py-2 md:py-4 rounded-lg"
-                onClick={handleSearch}
+                onClick={handleSearch} 
               >
                 Search Flights
               </button>
@@ -278,9 +309,33 @@ function Booking() {
         ) : (
           <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-11/12 md:w-[50%]">
             <div className="flex flex-col md:flex-row gap-4 mt-4">
+              <div className='flex flex-col relative'>
+                <input
+                  className="flex w-full md:w-full rounded-lg p-5 md:p-5 border-2 text-sm md:text-xl"
+                  value={toValue}
+                  placeholder='Destination'
+                  onChange={(e) => setToValue(e.target.value)}
+                />
+                <FaSearch onClick={() => fetchLocations(toValue)} className=' absolute opacity-50 top-6 right-4 h-6 w-6' />
+                {toLocations.length > 0 &&
+                  <>
+                    <MdClose onClick={() => setToLocations([])} className=' absolute opacity-50 top-6 right-12 h-6 w-6' />
+                    <div className=' border h-[200px] overflow-y-scroll'>
+                      {toLocations?.map((location, index) => (
+                        <p key={index} className='border-b p-2 cursor-pointer' value={location.iataCode} onClick={() => setToValue(location.iataCode)}>
+                          {location.name}
+                        </p>
+                      ))}
+                    </div>
+                  </>
+                }
+              </div>
               <div className="flex-1">
                 <input
-                  type="date"
+                  onFocus={(e) => (e.target.type = 'date')}
+                  onBlur={(e) => (e.target.type = 'text')}
+                  type="text"
+                  placeholder='Check In'
                   className="w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
                   value={departureDate}
                   onChange={(e) => setDepartureDate(e.target.value)}
@@ -289,11 +344,14 @@ function Booking() {
               </div>
               <div className="flex-1">
                 <input
-                  type="date"
+                  onFocus={(e) => (e.target.type = 'date')}
+                  onBlur={(e) => (e.target.type = 'text')}
+                  type="text"
+                  placeholder='Check Out'
                   className="w-full rounded-lg p-3 md:p-5 border-2 text-sm md:text-xl"
                   value={returnDate}
                   onChange={(e) => setReturnDate(e.target.value)}
-                  min={departureDate}
+                  min={today}
                 />
               </div>
             </div>
@@ -345,25 +403,34 @@ function Booking() {
 
       {loading ? (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-600"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-indigo-600 text-lg font-bold">
-            Loading...
+          <div className="relative">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-600"></div>
+            <div className="absolute inset-0 flex items-center justify-center text-indigo-600 text-lg font-bold">
+              Loading...
+            </div>
           </div>
         </div>
-      </div>
-      
+
       ) : (
         modalVisible && (
-          <FlightOffersModal
-            flightOffers={flightOffers}
-            setModalVisible={setModalVisible}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-          />
-        )
+          currentView === 'flights' ? (
+            <FlightOffersModal
+              flightOffers={flightOffers.slice((currentPage - 1) * 6, currentPage * 6)}
+              setModalVisible={setModalVisible}
+              handlePreviousPage={handlePreviousPage}
+              handleNextPage={handleNextPage}
+              currentPage={currentPage}
+              totalPages={totalPages}
+            />
+          ) : (
+            <HotelOffersModal
+              hotelOffers={hotelOffers}
+              setModalVisible={setModalVisible}
+            />
+          )
+        ))}
+      {errorMessage && (
+        <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
       )}
     </div>
   );

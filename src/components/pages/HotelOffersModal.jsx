@@ -1,43 +1,41 @@
-// HotelOffersModal.js
-
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const HotelOffersModal = ({ hotelOffers, currentPage, totalPages, handlePreviousPage, handleNextPage }) => {
-  const offersPerPage = 6;
-  const startIndex = (currentPage - 1) * offersPerPage;
-  const currentOffers = hotelOffers.slice(startIndex, startIndex + offersPerPage);
-
+function HotelOffersModal({ hotelOffers, setModalVisible }) {
   return (
-    <div>
-      <h2 className="text-2xl mb-4">Hotel Offers</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentOffers.map((offer, index) => (
-          <div key={index} className="p-4 border rounded-lg">
-            <h3 className="text-xl font-semibold">{offer.hotel.name}</h3>
-            <p>{offer.hotel.address.lines.join(', ')}</p>
-            <p>{offer.hotel.address.cityName}, {offer.hotel.address.countryCode}</p>
-            <p>Price: {offer.offers[0].price.total} {offer.offers[0].price.currency}</p>
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-between mt-4">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-11/12 md:w-2/3 relative">
         <button
-          onClick={handlePreviousPage}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          disabled={currentPage === 1}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-bold"
+          onClick={() => setModalVisible(false)}
         >
-          Previous
+          &times;
         </button>
-        <button
-          onClick={handleNextPage}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
+        <h2 className="text-2xl font-bold mb-4">Hotel Offers</h2>
+        <div className="space-y-4">
+          {hotelOffers.length > 0 ? (
+            hotelOffers.map((offer, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <h3 className="text-lg font-bold">{offer.name}</h3>
+                <p>{offer.address.countryCode}</p>
+                <p>Distance: {offer.distance.value} {offer.distance.unit}</p>
+                <p>Amenities: {offer.amenities.join(', ')}</p>
+                <p>Last Update: {new Date(offer.lastUpdate).toLocaleDateString()}</p>
+                <p>Location: {offer.geoCode.latitude}, {offer.geoCode.longitude}</p>
+                <button className="bg-indigo-600 text-white px-4 py-2 mt-2 rounded-lg">
+                  Book Now
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No hotel offers found.</p>
+          )}
+        </div>
       </div>
     </div>
   );
-};
+}
+
+
 
 export default HotelOffersModal;
