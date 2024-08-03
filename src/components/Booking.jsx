@@ -24,8 +24,6 @@ function Booking() {
   const [loading, setLoading] = useState(false);
   const [flightOffers, setFlightOffers] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [errorMessage, setErrorMessage] = useState('');
   const [hotelOffers, setHotelOffers] = useState([]);
 
@@ -98,51 +96,62 @@ function Booking() {
   const handleSearch = async () => {
     setLoading(true);
     setErrorMessage(''); // Clear previous error messages
-    try {
-      if (currentView === 'flights') {
-        const flightResults = await fetchFlightOffers(
-          fromValue,
-          toValue,
-          departureDate,
-          tripType === 'round-trip' ? returnDate : null,
-          travelers.adults,
-          travelers.children,
-          travelers.infants
-        );
-        console.log(flightResults);
-        setFlightOffers(flightResults);
-        setTotalPages(Math.ceil(flightResults.length / 6)); // Assuming 6 results per page
-      } else if (currentView === 'hotels') {
-        const hotelResults = await fetchHotelOffers(
-          toValue, // Use toValue as the city code for hotels
-          departureDate,
-          returnDate,
-          travelers.adults
-        );
-        setHotelOffers(hotelResults);
-        console.log(hotelResults);
 
-      }
-      setModalVisible(true);
-    } catch (error) {
-      console.error('Error fetching offers:', error);
-      setErrorMessage('Error fetching offers. Please try again later.');
-    } finally {
-      setLoading(false);
+    if (currentView === 'flights') {
+        if (!fromValue || !toValue || !departureDate || (tripType === 'round-trip' && !returnDate)) {
+            setErrorMessage('Please fill in all required fields for flights.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const flightResults = await fetchFlightOffers(
+                fromValue,
+                toValue,
+                departureDate,
+                tripType === 'round-trip' ? returnDate : null,
+                travelers.adults,
+                travelers.children,
+                travelers.infants
+            );
+            setFlightOffers(flightResults);
+            setModalVisible(true);
+        } catch (error) {
+            console.error('Error fetching flight offers:', error);
+            setErrorMessage('Error fetching flight offers. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    } else if (currentView === 'hotels') {
+        if (!toValue || !departureDate || !returnDate) {
+            setErrorMessage('Please fill in all required fields for hotels.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const hotelResults = await fetchHotelOffers(
+                toValue,
+                departureDate,
+                returnDate,
+                travelers.adults
+            );
+            setHotelOffers(hotelResults);
+            setModalVisible(true);
+        } catch (error) {
+            console.error('Error fetching hotel offers:', error);
+            setErrorMessage('Error fetching hotel offers. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
     }
-  };
+};
+
 
   const handleApply = () => {
     setDropdownOpen(false);
   };
 
-  const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
-  };
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -305,6 +314,7 @@ function Booking() {
                 Search Flights
               </button>
             </div>
+            {errorMessage && <ErrorModal message={errorMessage} />}
           </div>
         ) : (
           <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-11/12 md:w-[50%]">
@@ -415,12 +425,8 @@ function Booking() {
         modalVisible && (
           currentView === 'flights' ? (
             <FlightOffersModal
-              flightOffers={flightOffers.slice((currentPage - 1) * 6, currentPage * 6)}
+              flightOffers={flightOffers}
               setModalVisible={setModalVisible}
-              handlePreviousPage={handlePreviousPage}
-              handleNextPage={handleNextPage}
-              currentPage={currentPage}
-              totalPages={totalPages}
             />
           ) : (
             <HotelOffersModal

@@ -39,8 +39,12 @@ const Register = () => {
           setErrors({ general: response.data.message });
         }
       } catch (error) {
-        console.error('Registration error:', error);
-        setErrors({ general: 'An error occurred. Please try again.' });
+        if (error.response && error.response.status === 400 && error.response.data.message === 'Email already exists') {
+          setErrors({ email: 'Email already exists' });
+        } else {
+          console.error('Registration error:', error);
+          setErrors({ general: 'An error occurred. Please try again.' });
+        }
       }
     } else {
       setErrors(newErrors);
