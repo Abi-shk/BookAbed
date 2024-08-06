@@ -5,7 +5,6 @@ import Login from './components/Login';
 import Home from './components/Home';
 import Payment from './components/pages/Payment';
 import { useAuth } from './context/AuthContext';
-import PaymentSucces from './components/pages/Payment';
 import Todo from './components/Todo';
 import BookingDetails from './components/BookingDetails';
 
@@ -18,10 +17,9 @@ function App() {
   let loggedInRoutes = (
     <Routes>
       <Route path="/home" element={<Home />} />
-      <Route path="/payment" element={<Payment />} />
-      <Route path="/paymentSuccess" element={<PaymentSucces />} />
       <Route path="/history" element={<BookingDetails />} />
       <Route path="/todos" element={<Todo/>} />
+      <Route path="/paymentSuccess" element={<Payment/>} />
       <Route path="/booking/:id" element={<BookingDetails />} />
       <Route path='*' element={<Navigate to={"/home"} />} />
     </Routes>
