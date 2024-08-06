@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-const clientId = 'xfP5absRlbBi1oQRWWQd48uvdeXoaiwE';
-const clientSecret = 'bOAO6f3xru5o4HW6';
+const clientId = 'xfP5absRlbBi1oQRWWQd48uvdeXoaiwE'; // Your Amadeus API client ID
+const clientSecret = 'bOAO6f3xru5o4HW6'; // Your Amadeus API client secret
 
-let accessToken = null;
+let accessToken = null; // Variable to store the access token
 
+// Function to get access token from Amadeus API
 export const getAccessToken = async () => {
     const url = 'https://test.api.amadeus.com/v1/security/oauth2/token';
 
@@ -19,7 +20,7 @@ export const getAccessToken = async () => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         });
-        accessToken = response.data.access_token;
+        accessToken = response.data.access_token; // Store the access token
         return accessToken;
     } catch (error) {
         console.error('Error fetching access token:', error);
@@ -27,9 +28,10 @@ export const getAccessToken = async () => {
     }
 };
 
+// Function to fetch flight offers from Amadeus API
 export const fetchFlightOffers = async (fromValue, toValue, departureDate, returnDate, adults, children, infants) => {
     if (!accessToken) {
-        accessToken = await getAccessToken();
+        accessToken = await getAccessToken(); // Get access token if not already available
     }
 
     if (!accessToken) return;
@@ -81,9 +83,10 @@ export const fetchFlightOffers = async (fromValue, toValue, departureDate, retur
     }
 };
 
+// Function to fetch hotel offers from Amadeus API
 export const fetchHotelOffers = async (cityCode, checkInDate, checkOutDate, adults) => {
     if (!accessToken) {
-        accessToken = await getAccessToken();
+        accessToken = await getAccessToken(); // Get access token if not already available
     }
 
     if (!accessToken) return;
@@ -117,4 +120,3 @@ export const fetchHotelOffers = async (cityCode, checkInDate, checkOutDate, adul
         }
     }
 };
-

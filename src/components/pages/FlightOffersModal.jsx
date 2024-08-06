@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MdClose } from 'react-icons/md';
 import { FaPlaneDeparture, FaPlaneArrival } from 'react-icons/fa';
@@ -7,13 +6,10 @@ import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
-const FlightOffersModal = ({
-  flightOffers,
-  setModalVisible,
-}) => {
+const FlightOffersModal = ({ flightOffers, setModalVisible }) => {
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [showPayment, setShowPayment] = useState(false);
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // Number of results per page
   const totalPages = Math.ceil(flightOffers.length / itemsPerPage);
@@ -21,6 +17,7 @@ const FlightOffersModal = ({
   // Slice the offers based on the current page
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentOffers = flightOffers.slice(startIndex, startIndex + itemsPerPage);
+
   const handleSelectFlight = async (flight) => {
     flight.user = user;
 
@@ -29,18 +26,19 @@ const FlightOffersModal = ({
       headers: {
         Authorization: `Bearer ${user.accessToken}`
       }
-    })
-    console.log(res.data)
+    });
+    console.log(res.data);
     if (res.data.status) {
       const result = await stripe?.redirectToCheckout({
         sessionId: res.data.id
-      })
+      });
 
       if (result?.error) {
-        console.log(result.error)
+        console.log(result.error);
       }
     }
   };
+
   const handlePreviousPage = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };

@@ -4,13 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  // State variables to manage form inputs, errors, loading state, and authentication context
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth(); // Function from AuthContext to handle login
+  const navigate = useNavigate(); // Hook to programmatically navigate
 
+  // Function to validate form inputs
   const validate = () => {
     const newErrors = {};
     if (!email) {
@@ -26,35 +28,39 @@ const Login = () => {
     return newErrors;
   };
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    if (Object.keys(newErrors).length === 0) {
-      setLoading(true);
+    if (Object.keys(newErrors).length === 0) { // No validation errors
+      setLoading(true); // Set loading state to true
       try {
+        // Send login request to the server
         const response = await axios.post('https://bookabed-backend.onrender.com/api/login', { email, password });
-        if (response.data.success) {
-          login(response.data);
-          navigate('/home');
+        if (response.data.success) { // Check if login is successful
+          login(response.data); // Call login function from AuthContext
+          navigate('/home'); // Redirect to home page
         } else {
-          setErrors({ general: 'Invalid email or password' });
+          setErrors({ general: 'Invalid email or password' }); // Handle invalid login
         }
       } catch (error) {
+        // Handle errors from the server
         if (error.response && error.response.status === 401) {
           setErrors({ general: 'Invalid email or password' });
         } else {
           setErrors({ general: 'An error occurred. Please try again.' });
         }
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading state to false
       }
     } else {
-      setErrors(newErrors);
+      setErrors(newErrors); // Set validation errors if any
     }
   };
 
   return (
     <div className="min-w-screen min-h-screen bg-gray-900 flex items-center justify-center px-5 py-5 relative">
+      {/* Display a loading spinner while the request is in progress */}
       {loading && (
         <div className="absolute inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50">
           <div className="flex flex-col items-center">
@@ -78,15 +84,19 @@ const Login = () => {
           </div>
         </div>
       )}
+
+      {/* Login form */}
       {!loading && (
         <div className="bg-gray-100 text-gray-500 rounded-3xl shadow-xl w-full overflow-hidden" style={{ maxWidth: '1000px' }}>
           <div className="md:flex w-full">
+            {/* Form section */}
             <div className="w-full md:w-1/2 py-10 px-5 md:px-10">
               <div className="text-center mb-5">
                 <h1 className="font-extrabold text-3xl text-gray-900">LOGIN</h1>
                 <p className="mt-10 font-bold text-lg text-gray-500">Enter your credentials to login</p>
               </div>
               <form onSubmit={handleSubmit}>
+                {/* Email input field */}
                 <div className="flex -mx-3">
                   <div className="w-full px-3 mb-5">
                     <label htmlFor="email" className="text-xs font-semibold px-1">Email</label>
@@ -106,6 +116,7 @@ const Login = () => {
                     {errors.email && <p className="text-red-500 text-xs mt-2 ml-2">{errors.email}</p>}
                   </div>
                 </div>
+                {/* Password input field */}
                 <div className="flex -mx-3">
                   <div className="w-full px-3 mb-12">
                     <label htmlFor="password" className="text-xs font-semibold px-1">Password</label>
@@ -125,7 +136,9 @@ const Login = () => {
                     {errors.password && <p className="text-red-500 text-xs mt-2 ml-2">{errors.password}</p>}
                   </div>
                 </div>
+                {/* General error message */}
                 {errors.general && <p className="text-red-500 text-xs text-center mb-2">{errors.general}</p>}
+                {/* Submit button */}
                 <div className="flex -mx-3">
                   <div className="w-full px-3 mb-5">
                     <button
@@ -149,6 +162,7 @@ const Login = () => {
                 </div>
               </form>
             </div>
+            {/* Background image section */}
             <div className="hidden md:block w-1/2 bg-indigo-500 py-10 px-10">
               <img
                 src="https://cdn3.iconfinder.com/data/icons/hotel-service-staff-chef-waiter-and-receptionist/66/47-256.png"

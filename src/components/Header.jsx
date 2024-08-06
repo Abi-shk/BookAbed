@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function Header({ currentView, setCurrentView }) {
+  // State variables to manage scroll position, dropdowns, and mobile menu visibility
   const [scrolled, setScrolled] = useState(false);
   const [showFLDropdown, setShowFLDropdown] = useState(false);
   const [showENDropdown, setShowENDropdown] = useState(false);
@@ -14,19 +15,22 @@ function Header({ currentView, setCurrentView }) {
   const [selectedEN, setSelectedEN] = useState('ENG');
   const [selectedINR, setSelectedINR] = useState('INR');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { logout, user } = useAuth();
+  
+  const { logout, user } = useAuth();  // Destructure logout function and user object from AuthContext
 
+  // Handle scroll event to apply a shadow to the header when scrolled
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
+      setScrolled(window.scrollY > 0);  // Set scrolled state based on window scroll position
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);  // Clean up event listener on unmount
     };
   }, []);
 
+  // Functions to handle selection changes in dropdowns
   const handleFLSelect = (country) => {
     setSelectedFL(country);
     setShowFLDropdown(false);
@@ -42,10 +46,12 @@ function Header({ currentView, setCurrentView }) {
     setShowINRDropdown(false);
   };
 
+  // Function to handle logout
   const handleLogout = () => {
     logout();
   };
 
+  // Toggle the mobile menu visibility
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);
   };
@@ -55,12 +61,13 @@ function Header({ currentView, setCurrentView }) {
       className={`fixed top-0 left-0 w-full flex justify-between items-center h-20 md:h-40 p-4 z-20 gap-3 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg' : 'bg-transparent'
         }`}
     >
-      {/* Logo and Flight/Hotel Buttons */}
+      {/* Logo and Navigation Buttons */}
       <div className="flex items-center justify-around w-1/2 md:w-1/3">
-        <Link to={'/todos'}> <i
-          className={`bx bx-notepad text-2xl md:text-4xl cursor-pointer  ${scrolled ? 'text-indigo-500' : 'text-white'
-            }`}
-        ></i>
+        <Link to={'/todos'}>
+          <i
+            className={`bx bx-notepad text-2xl md:text-4xl cursor-pointer ${scrolled ? 'text-indigo-500' : 'text-white'
+              }`}
+          ></i>
         </Link>
         <Link to='/home'>
           <h1 className="text-indigo-500 text-center text-xl md:text-4xl font-serif font-bold underline cursor-pointer">
@@ -69,6 +76,7 @@ function Header({ currentView, setCurrentView }) {
         </Link>
         {scrolled && (
           <div className="hidden md:flex items-center space-x-6">
+            {/* Buttons to switch between Flights and Hotels views */}
             <button
               className={`text-lg md:text-2xl font-bold text-black p-2 hover:text-indigo-500 hover:border-b-4 border-indigo-500 h-[60px] md:h-[120px] ${currentView === 'flights' ? 'text-indigo-500 border-b-4 border-green-60' : 'text-black bg-transparent'
                 }`}
@@ -87,9 +95,9 @@ function Header({ currentView, setCurrentView }) {
         )}
       </div>
 
-      {/* Language and Currency */}
+      {/* Language and Currency Dropdowns */}
       <div className="md:flex w-1/2 md:w-1/3 justify-end items-center space-x-0.5 hidden">
-        {/* FL Dropdown */}
+        {/* Country Dropdown */}
         <div className="relative">
           <button
             className="w-14 md:w-20 h-10 bg-slate-400 hover:bg-slate-300 rounded-tl-full rounded-bl-full"
@@ -122,7 +130,7 @@ function Header({ currentView, setCurrentView }) {
           )}
         </div>
 
-        {/* EN Dropdown */}
+        {/* Language Dropdown */}
         <div className="relative">
           <button
             className="w-14 md:w-20 h-10 bg-slate-400 hover:bg-slate-300"
@@ -155,7 +163,7 @@ function Header({ currentView, setCurrentView }) {
           )}
         </div>
 
-        {/* INR Dropdown */}
+        {/* Currency Dropdown */}
         <div className="relative">
           <button
             className="w-14 md:w-20 h-10 bg-slate-400 hover:bg-slate-300 rounded-tr-full rounded-br-full"
@@ -198,7 +206,7 @@ function Header({ currentView, setCurrentView }) {
       </button>
 
       {/* Login, Logout, and Get Started Buttons */}
-      <div className=" w-1/3 justify-start items-center space-x-5 hidden md:flex">
+      <div className="w-1/3 justify-start items-center space-x-5 hidden md:flex">
         {user ? (
           <>
             <button className="w-40 gap-2 flex justify-center items-center h-10 bg-blue-400 hover:bg-blue-300 text-white rounded-full">
@@ -217,7 +225,6 @@ function Header({ currentView, setCurrentView }) {
                 Bookings
               </button>
             </Link>
-           
           </>
         ) : (
           <>
@@ -261,10 +268,10 @@ function Header({ currentView, setCurrentView }) {
                 </button>
               </Link>
               <Link to="/">
-              <button className="w-32 md:flex justify-center items-center h-10 bg-red-800 hover:bg-red-600 text-white rounded-full mt-24">
-                Cancel
-              </button>
-            </Link>
+                <button className="w-32 md:flex justify-center items-center h-10 bg-red-800 hover:bg-red-600 text-white rounded-full mt-24">
+                  Cancel
+                </button>
+              </Link>
             </>
           ) : (
             <>
